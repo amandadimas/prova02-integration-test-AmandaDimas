@@ -1,49 +1,37 @@
 import pactum from 'pactum';
 import { StatusCodes } from 'http-status-codes';
-import { SimpleReporter } from '../simple-reporter';
 import { faker } from '@faker-js/faker';
 
-describe('Fake Store API', () => {
+describe('DummyJSON API Full CRUD Tests', () => {
   const p = pactum;
-  const rep = SimpleReporter;
-  const baseUrl = 'https://fakestoreapi.com';
+  const baseUrl = 'https://dummyjson.com';
 
-  let productId = '';
   let userId = '';
-  let token = '';
+  let productId = '';
 
   p.request.setDefaultTimeout(60000);
 
-  beforeAll(async () => {
-    p.reporter.add(rep);
-  });
-
-  afterAll(() => p.reporter.end());
-
-  describe('Products', () => {
-
-    it('Buscar produto pelo ID', async () => {
-      await p
-        .spec()
-        .get(`${baseUrl}/products/${productId}`)
-        .expectStatus(StatusCodes.OK);
-    });
-
-    it('Listar produtos', async () => {
-      await p
-        .spec()
-        .get(`${baseUrl}/products`)
-        .expectStatus(StatusCodes.OK);
-    });
-  });
-
+  // ---------------- Users ----------------
   describe('Users', () => {
+    it('Cadastrar novo usuário', async () => {
+      const firstName = faker.person.firstName();
+      const lastName = faker.person.lastName();
+      const email = faker.internet.email();
+      const password = faker.internet.password({ length: 10 });
 
-    it('Buscar usuário pelo ID', async () => {
-      await p
+      userId = await p
         .spec()
-        .get(`${baseUrl}/users/${userId}`)
-        .expectStatus(StatusCodes.OK);
+        .post(`${baseUrl}/users/add`)
+        .withJson({
+          firstName,
+          lastName,
+          age: 25,
+          username: faker.internet.username(),
+          email,
+          password
+        })
+        .expectStatus(StatusCodes.CREATED)
+        .returns('id');
     });
   });
 });
